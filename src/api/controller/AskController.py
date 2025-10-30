@@ -4,13 +4,6 @@ from src.api.models import Question, Response
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
 from langchain.memory import ConversationBufferWindowMemory
-from langchain.chains import LLMChain
-from langchain.prompts import (
-    ChatPromptTemplate,
-    MessagesPlaceholder,
-    SystemMessagePromptTemplate,
-    HumanMessagePromptTemplate,
-)
 from google import genai
 from src.api.database.MyVanna import MyVanna
 import json
@@ -48,10 +41,7 @@ class AskController(metaclass=SingletonMeta):
             output_key="answer"
         )
 
-        # Chain para pré-processamento com contexto
-        self.preprocessing_chain = self._create_preprocessing_chain()
-
-        # instancia do vanna
+        # Instância do vanna
         self.vn = MyVanna(config={
             'print_prompt': False,
             'print_sql': False,
@@ -64,10 +54,29 @@ class AskController(metaclass=SingletonMeta):
         self.sql_cache: Dict[str, str] = {}
         self.result_cache: Dict[str, any] = {}
 
-    def _create_preprocessing_chain(self) -> LLMChain:
-        """Cria chain para pré-processar perguntas com contexto da conversa"""
-        
-        system_template = """Você é um assistente especializado em processar perguntas sobre dados do GitHub.
+    def _preprocess_question(self, question: str) -> str:
+        """
+        Pré-processa a pergunta usando LLM com contexto da memória
+        Versão simplificada sem LLMChain para evitar problemas de parsing
+        """
+        try:
+            # Recupera histórico da memória
+            memory_vars = self.memory.load_memory_variables({})
+            chat_history = memory_vars.get("chat_history", [])
+            
+            # Monta contexto do histórico
+            history_text = ""
+            if chat_history:
+                history_text = "Histórico da conversa:\n"
+                for msg in chat_history[-5:]:  # Últimas 5 mensagens
+                    if isinstance(msg, HumanMessage):
+                        history_text += f"Usuário: {msg.content}\n"
+                    elif isinstance(msg, AIMessage):
+                        history_text += f"Assistente: {msg.content}\n"
+                history_text += "\n"
+
+            # Monta o prompt
+            system_prompt = """Você é um assistente especializado em processar perguntas sobre dados do GitHub.
 
 Sua função é:
 1. Analisar o histórico da conversa para entender o contexto
@@ -85,22 +94,37 @@ REGRAS CRÍTICAS:
 - Se a pergunta fizer referência a algo anterior ("e aquele", "o outro", "também"), inclua o contexto explícito
 - Se não houver referência contextual, retorne a pergunta apenas normalizada
 - NÃO explique, NÃO confirme, NÃO dê exemplos
-- Retorne APENAS a pergunta processada e expandida
+- Retorne APENAS a pergunta processada e expandida em uma única linha"""
 
-Histórico da conversa está disponível abaixo."""
-
-        prompt = ChatPromptTemplate.from_messages([
-            SystemMessagePromptTemplate.from_template(system_template),
-            MessagesPlaceholder(variable_name="chat_history"),
-            HumanMessagePromptTemplate.from_template("{question}")
-        ])
-
-        return LLMChain(
-            llm=self.llm,
-            prompt=prompt,
-            memory=self.memory,
-            verbose=False
-        )
+            # Monta mensagens
+            messages = [
+                SystemMessage(content=system_prompt)
+            ]
+            
+            # Adiciona histórico se existir
+            if history_text:
+                messages.append(HumanMessage(content=history_text))
+            
+            # Adiciona pergunta atual
+            messages.append(HumanMessage(content=f"Pergunta a processar: {question}"))
+            
+            # Chama LLM
+            response = self.llm.invoke(messages)
+            
+            # Extrai conteúdo da resposta
+            if hasattr(response, 'content'):
+                processed = response.content.strip()
+            else:
+                processed = str(response).strip()
+            
+            # Remove qualquer explicação extra (pega só a primeira linha)
+            processed = processed.split('\n')[0].strip()
+            
+            return processed
+            
+        except Exception as e:
+            print(f"[Warning] Erro no preprocessing: {e}. Usando pergunta original.")
+            return question
 
     def _get_cache_key(self, text: str) -> str:
         """Gera chave de cache baseada no hash da pergunta normalizada"""
@@ -184,8 +208,9 @@ Responda de forma conversacional e útil.
             )
             return response.parsed[0].texto
         except Exception as e:
+            print(f"[Error] Erro ao formatar resposta: {e}")
             # Fallback para resposta simples
-            return f"Resultado: {result}"
+            return f"Consulta executada com sucesso. Resultado: {result}"
 
     def ask(self, question: Question, session_id: Optional[str] = None) -> dict:
         """
@@ -196,19 +221,12 @@ Responda de forma conversacional e útil.
             session_id: ID da sessão para memória multi-usuário (futuro)
         """
         
-        # --- Dentro de ask() ---
         try:
             original_question = question.question
+            print(f"[Original] {original_question}")
 
-            # Etapa 1: Pré-processar com contexto (usando chain)
-            processed_question = self.preprocessing_chain.invoke({
-                "question": original_question
-            })
-            if isinstance(processed_question, dict) and "text" in processed_question:
-                processed_question = processed_question["text"]
-            elif not isinstance(processed_question, str):
-                processed_question = str(processed_question)
-
+            # Etapa 1: Pré-processar com contexto
+            processed_question = self._preprocess_question(original_question)
             print(f"[Preprocessed] {processed_question}")
 
             # Etapa 2: Verificar cache de SQL
@@ -218,8 +236,10 @@ Responda de forma conversacional e útil.
                 print(f"[Cache Hit] SQL encontrado no cache")
                 sql_gerado = self.sql_cache[cache_key]
             else:
+                # Gerar SQL com Vanna
                 sql_gerado = self.vn.generate_sql(processed_question)
 
+                # Validar SQL
                 is_valid, error_msg = self._validate_sql(sql_gerado)
                 if not is_valid:
                     return {
@@ -227,19 +247,24 @@ Responda de forma conversacional e útil.
                         "error": True
                     }
 
+                # Armazenar no cache
                 self.sql_cache[cache_key] = sql_gerado
                 print(f"[Cache Miss] SQL gerado e armazenado")
 
             print(f"[SQL] {sql_gerado}")
 
+            # Etapa 3: Verificar cache de resultados
             result_cache_key = hashlib.md5(sql_gerado.encode()).hexdigest()
 
             if result_cache_key in self.result_cache:
                 print(f"[Cache Hit] Resultado encontrado no cache")
                 resultado = self.result_cache[result_cache_key]
             else:
+                # Executar SQL
                 resultado = self.vn.run_sql(sql_gerado)
+                
                 if not resultado:
+                    # Salvar na memória mesmo sem resultado
                     self.memory.save_context(
                         inputs={"question": original_question},
                         outputs={"answer": "Não há dados correspondentes no banco."}
@@ -248,16 +273,19 @@ Responda de forma conversacional e útil.
                         "output": "A consulta foi executada, mas não há dados correspondentes.",
                         "sql": sql_gerado
                     }
-
+                
+                # Armazenar resultado no cache
                 self.result_cache[result_cache_key] = resultado
                 print(f"[Cache Miss] Resultado obtido e armazenado")
 
+            # Etapa 4: Formatar resposta com contexto
             resposta_formatada = self._format_response_with_context(
                 question=original_question,
                 sql=sql_gerado,
                 result=resultado
             )
 
+            # Etapa 5: Salvar na memória
             self.memory.save_context(
                 inputs={"question": original_question},
                 outputs={"answer": resposta_formatada}
@@ -270,19 +298,24 @@ Responda de forma conversacional e útil.
             }
 
         except Exception as e:
+            import traceback
             error_msg = f"Erro ao processar pergunta: {str(e)}"
             print(f"[Error] {error_msg}")
+            print(f"[Error] Traceback: {traceback.format_exc()}")
 
-            self.memory.save_context(
-                inputs={"question": question.question},
-                outputs={"answer": error_msg}
-            )
+            # Salvar erro na memória
+            try:
+                self.memory.save_context(
+                    inputs={"question": question.question},
+                    outputs={"answer": error_msg}
+                )
+            except:
+                pass
 
             return {
                 "output": error_msg,
                 "error": True
             }
-
 
     def clear_memory(self):
         """Limpa o histórico da conversa"""
