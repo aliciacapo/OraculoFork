@@ -15,12 +15,61 @@ DB_USER = env["DB_USER"]
 DB_PASSWORD = env["DB_PASSWORD"]
 DB_URL = env["DB_URL"]
 
-class MyVanna(ChromaDB_VectorStore, GoogleGeminiChat):
+class ChromaDB_VectorStoreReset(ChromaDB_VectorStore):
     def __init__(self, config=None):
         if config is None:
             config = {}
         
-        ChromaDB_VectorStore.__init__(self, config=config)
+        # Força o reset na inicialização
+        config["reset_on_init"] = config.get("reset_on_init", True)
+        
+        super().__init__(config=config)
+        
+        # Limpa as coleções após a inicialização padrão
+        if config["reset_on_init"]:
+            self._reset_collections()
+            
+            # Recria as coleções vazias
+            collection_metadata = config.get("collection_metadata", None)
+            self.documentation_collection = self.chroma_client.get_or_create_collection(
+                name="documentation",
+                embedding_function=self.embedding_function,
+                metadata=collection_metadata,
+            )
+            self.ddl_collection = self.chroma_client.get_or_create_collection(
+                name="ddl",
+                embedding_function=self.embedding_function,
+                metadata=collection_metadata,
+            )
+            self.sql_collection = self.chroma_client.get_or_create_collection(
+                name="sql",
+                embedding_function=self.embedding_function,
+                metadata=collection_metadata,
+            )
+
+    def _reset_collections(self):
+        """Limpa todas as coleções existentes"""
+        try:
+            self.chroma_client.delete_collection("documentation")
+        except Exception:
+            pass
+        
+        try:
+            self.chroma_client.delete_collection("ddl")
+        except Exception:
+            pass
+        
+        try:
+            self.chroma_client.delete_collection("sql")
+        except Exception:
+            pass
+
+class MyVanna(ChromaDB_VectorStoreReset, GoogleGeminiChat):
+    def __init__(self, config=None):
+        if config is None:
+            config = {}
+        
+        ChromaDB_VectorStoreReset.__init__(self, config=config)
         
         GEMINI_API_KEY = config.get('api_key')
         GEMINI_MODEL_NAME = config.get('model_name')
@@ -123,32 +172,134 @@ class MyVanna(ChromaDB_VectorStore, GoogleGeminiChat):
             password = DB_PASSWORD
         )
 
-        schema = self.get_schema()
-
-        self.train(ddl=self.schema)
+        self.train(ddl=self.get_schema())
 
         self.train(documentation="""
-        A tabela repository armazena os repositórios, identificados por um ID único e nome.
+Table: user_info
 
-        A tabela user contém informações dos usuários, como login e URL de perfil. É usada como referência em outras tabelas, como quem criou issues, pull requests e milestones.
+    id: Bigint primary key with default value from sequence
 
-        A tabela milestone representa marcos definidos nos repositórios, contendo título, descrição, número, estado (aberta ou fechada), datas de criação e atualização, o repositório ao qual pertence e o usuário criador.
+    login: Required username field (character varying)
 
-        A tabela issue armazena tarefas ou bugs reportados. Contém título, corpo, número, autor, repositório, milestone relacionada, datas e URL. As atribuições de usuários a uma issue são registradas em issue_assignees.
+    html_url: Required profile URL field (text)
 
-        A tabela pull_requests armazena os pull requests criados nos repositórios. Inclui título, corpo, número, estado, criador, repositório, milestone (opcional), datas e URL. Os responsáveis são registrados em pull_request_assignees.
+Table: milestone
 
-        A tabela branch armazena os nomes de branches de cada repositório.
+    id: Bigint primary key with default value from sequence
 
-        A tabela commits armazena cada commit feito. Cada registro contém o SHA, mensagem, autor (usuário), repositório, branch (opcional), data de criação e URL. Também há referência à tabela de usuários.
+    repository_id: Associated repository ID (integer, required)
 
-        A tabela parents_commits representa a relação entre commits e seus pais (para commits com múltiplos ancestrais, como em merges). Usa o SHA do commit pai e o ID do commit filho.
+    title: Milestone title (text, required)
 
-        A tabela issue_assignees relaciona múltiplos usuários a uma mesma issue, representando atribuições de tarefas. É uma tabela de junção entre issues e usuários.
+    description: Milestone description (text, optional)
 
-        A tabela pull_request_assignees relaciona múltiplos usuários a um pull request, permitindo registrar quem é responsável por revisar ou aprovar um PR.
+    number: Milestone number (integer, required)
 
-        O modelo garante integridade por meio de chaves estrangeiras, e unicidade de registros por restrições compostas (como número + repositório para issues, pull requests e milestones).
+    state: Milestone state (character varying, required)
+
+    created_at: Creation timestamp with time zone
+
+    updated_at: Update timestamp with time zone
+
+    creator: Creator user ID (bigint, required)
+
+Table: repository
+
+    id: Integer primary key with default value from sequence
+
+    name: Repository name (character varying, required)
+
+Table: branch
+
+    id: Bigint primary key with default value from sequence
+
+    name: Branch name (character varying, required)
+
+    repository_id: Associated repository ID (integer, required)
+
+Table: issue
+
+    id: Bigint primary key with default value from sequence
+
+    title: Issue title (text, required)
+
+    body: Issue body/description (text, optional)
+
+    number: Issue number (integer, required)
+
+    html_url: Issue URL (text, optional)
+
+    created_at: Creation timestamp with time zone
+
+    updated_at: Update timestamp with time zone
+
+    created_by: Creator user ID (bigint, required)
+
+    repository_id: Associated repository ID (bigint, required)
+
+    milestone_id: Associated milestone ID (bigint, optional)
+
+Table: pull_requests
+
+    id: Bigint primary key with default value from sequence
+
+    created_by: Creator user ID (bigint, required)
+
+    repository_id: Associated repository ID (integer, required)
+
+    number: Pull request number (integer, required)
+
+    state: Pull request state (character varying, required)
+
+    title: Pull request title (text, required)
+
+    body: Pull request body/description (text, optional)
+
+    html_url: Pull request URL (text, required)
+
+    created_at: Creation timestamp with time zone
+
+    updated_at: Update timestamp with time zone
+
+    milestone_id: Associated milestone ID (bigint, optional)
+
+Table: commits
+
+    id: Bigint primary key with default value from sequence
+
+    user_id: Author user ID (bigint, required)
+
+    branch_id: Associated branch ID (integer, optional)
+
+    pull_request_id: Associated pull request ID (bigint, optional)
+
+    created_at: Creation timestamp with time zone
+
+    message: Commit message (text, required)
+
+    sha: Commit SHA hash (character varying, required)
+
+    html_url: Commit URL (text, optional)
+
+Table: parents_commits
+
+    id: Integer primary key with default value from sequence
+
+    parent_sha: Parent commit SHA hash (character varying, required)
+
+    commit_id: Child commit ID (integer, required)
+
+Table: issue_assignees
+
+    issue_id: Issue ID (bigint, required, part of primary key)
+
+    user_id: Assigned user ID (bigint, required, part of primary key)
+
+Table: pull_request_assignees
+
+    pull_request_id: Pull request ID (bigint, required, part of primary key)
+
+    user_id: Assigned user ID (bigint, required, part of primary key)
         """)
         
         self.train(sql="""
@@ -232,3 +383,5 @@ class MyVanna(ChromaDB_VectorStore, GoogleGeminiChat):
         ORDER BY
             total_commits DESC;
         """)
+
+

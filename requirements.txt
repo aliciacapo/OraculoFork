@@ -5,9 +5,11 @@ psycopg2-binary==2.9.10
 python-dotenv==1.1.0
 vanna==0.7.9
 chromadb
-google-generativeai==0.8.5
+google-genai
 google-cloud-aiplatform==1.96.0
 onnxruntime==1.22.0
+langchain-google-genai<1.0.0
+langchain
 
 pytest==7.4.0
 pytest-asyncio==0.21.1
