@@ -1,0 +1,128 @@
+overview Oraculo {
+  name: "Oráculo"
+  description: "Chatbot para análise de repositórios GitHub"
+  purpose: "Auxiliar usuários a obter informações e análises de repositórios GitHub através de IA"
+  miniworld: "Usuários autenticados podem conectar repositórios GitHub e fazer perguntas sobre o código via chat"
+  Architecture: python
+}
+
+requirements Requirements {
+    name: "Oráculo Requirements"
+    description: "Requisitos para o funcionamento do sistema Oráculo"
+
+    functional_requirement RF01 {
+        description: "O sistema deve permitir registro de usuários com email e senha"
+        priority: "High"
+    }
+
+    functional_requirement RF02 {
+        description: "O sistema deve permitir login seguro de usuários"
+        priority: "High"
+        depend: Requirements.RF01
+    }
+
+    functional_requirement RF03 {
+        description: "O sistema deve permitir controle de acesso para que usuários vejam apenas seus próprios dados"
+        priority: "High"
+        depend: Requirements.RF02
+    }
+
+    functional_requirement RF04 {
+        description: "O sistema deve permitir inserir e atualizar token de acesso ao GitHub"
+        priority: "High"
+    }
+
+    functional_requirement RF05 {
+        description: "O sistema deve manter memória contextual das conversas com a IA"
+        priority: "High"
+    }
+
+    functional_requirement RF06 {
+        description: "O sistema deve gerar gráficos e visualizações de dados"
+        priority: "Medium"
+    }
+
+    functional_requirement RF07 {
+        description: "O sistema deve padronizar respostas da IA com parâmetros controláveis"
+        priority: "Low"
+    }
+
+    non_functional_requirement RNF01 {
+        description: "O sistema deve ter autenticação segura com criptografia de senha"
+        priority: "High"
+    }
+
+    non_functional_requirement RNF02 {
+        description: "Deve ser uma aplicação responsiva, funcionando bem em desktop e mobile"
+        priority: "High"
+    }
+
+    non_functional_requirement RNF03 {
+        description: "O backend deve ser desenvolvido em FastAPI"
+        priority: "High"
+    }
+
+
+    non_functional_requirement RNF05 {
+        description: "O sistema deve usar LangChain para gerenciamento de memória"
+        priority: "High"
+    }
+}
+
+usecase Authentication {
+    name: "Autenticação e Controle de Acesso"
+    description: "Usuário se registra e faz login de forma segura"
+    requirements: Requirements.RF01
+}
+
+usecase TokenManagement {
+    name: "Gerenciamento de Token"
+    description: "Usuário gerencia token de acesso ao GitHub"
+    requirements: Requirements.RF04
+}
+
+usecase ChatInteraction {
+    name: "Interação com Chatbot"
+    description: "Usuário interage com a IA mantendo contexto da conversa"
+    requirements: Requirements.RF05
+}
+
+usecase DataVisualization {
+    name: "Visualização de Dados"
+    description: "Sistema gera gráficos baseados em dados do repositório"
+    requirements: Requirements.RF06
+}
+
+module OraculoApp {
+    description: "Módulo principal da aplicação Oráculo"
+
+    enum Priority {
+        low
+        medium
+        high
+    }
+
+    entity User {
+        username: string
+        _email: email
+        password: string
+        github_token: string
+    }
+
+    entity Repository {
+        url: string
+        user ManyToOne User
+    }
+
+    entity Conversation {
+        conversation_date: date
+        user ManyToOne User
+    }
+
+    entity Message {
+        content: string
+        is_user: boolean
+        timestamp: date
+        conversation ManyToOne Conversation
+    }
+}

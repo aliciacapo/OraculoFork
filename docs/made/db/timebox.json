@@ -1,0 +1,407 @@
+{
+  "data": [
+    {
+      "id": "Sprint1",
+      "name": "Sprint 1: Memória Inicial com LangChain",
+      "description": "02/10/2025 -- 08/10/2025",
+      "startDate": "2025-10-02",
+      "endDate": "2025-10-08",
+      "status": "IN_PROGRESS",
+      "sprintItems": [
+        {
+          "id": "feature3_memoria.initialmemory.setuplangchain",
+          "assignee": {
+            "id": "alicia",
+            "name": "aliciacapo",
+            "email": "alicia.caporrali@gmail.com"
+          },
+          "issue": {
+            "id": "feature3_memoria.initialmemory.setuplangchain",
+            "title": "Configurar LangChain",
+            "description": "Instalar e configurar biblioteca",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-02",
+          "dueDate": "2025-10-08",
+          "status": "DOING"
+        },
+        {
+          "id": "feature3_memoria.initialmemory.memorystore",
+          "assignee": {
+            "id": "alicia",
+            "name": "aliciacapo",
+            "email": "alicia.caporrali@gmail.com"
+          },
+          "issue": {
+            "id": "feature3_memoria.initialmemory.memorystore",
+            "title": "Armazenamento de memória",
+            "description": "Criar store para histórico",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-02",
+          "dueDate": "2025-10-08",
+          "status": "DOING"
+        },
+        {
+          "id": "feature3_memoria.initialmemory.integratechat",
+          "assignee": {
+            "id": "alicia",
+            "name": "aliciacapo",
+            "email": "alicia.caporrali@gmail.com"
+          },
+          "issue": {
+            "id": "feature3_memoria.initialmemory.integratechat",
+            "title": "Integrar com chat",
+            "description": "Usar contexto nas respostas",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-02",
+          "dueDate": "2025-10-08",
+          "status": "DOING"
+        }
+      ]
+    },
+    {
+      "id": "Sprint2",
+      "name": "Sprint 2: Visualização e Gráficos",
+      "description": "09/10/2025 -- 15/10/2025",
+      "startDate": "2025-10-09",
+      "endDate": "2025-10-15",
+      "status": "PLANNED",
+      "sprintItems": [
+        {
+          "id": "feature4_graficos.charts.setuplibraries",
+          "assignee": {
+            "id": "sofia",
+            "name": "sofianasilva",
+            "email": "sofianascimento307@gmail.com"
+          },
+          "issue": {
+            "id": "feature4_graficos.charts.setuplibraries",
+            "title": "Configurar bibliotecas",
+            "description": "Instalar Matplotlib, Pandas, Plotly",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-09",
+          "dueDate": "2025-10-15",
+          "status": "TODO"
+        },
+        {
+          "id": "feature4_graficos.charts.datapipeline",
+          "assignee": {
+            "id": "sofia",
+            "name": "sofianasilva",
+            "email": "sofianascimento307@gmail.com"
+          },
+          "issue": {
+            "id": "feature4_graficos.charts.datapipeline",
+            "title": "Pipeline de dados",
+            "description": "Processar dados para visualização",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-09",
+          "dueDate": "2025-10-15",
+          "status": "TODO"
+        },
+        {
+          "id": "feature4_graficos.charts.chartgeneration",
+          "assignee": {
+            "id": "sofia",
+            "name": "sofianasilva",
+            "email": "sofianascimento307@gmail.com"
+          },
+          "issue": {
+            "id": "feature4_graficos.charts.chartgeneration",
+            "title": "Geração de gráficos",
+            "description": "Criar diferentes tipos de gráficos",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-09",
+          "dueDate": "2025-10-15",
+          "status": "TODO"
+        },
+        {
+          "id": "feature4_graficos.charts.chatintegration",
+          "assignee": {
+            "id": "sofia",
+            "name": "sofianasilva",
+            "email": "sofianascimento307@gmail.com"
+          },
+          "issue": {
+            "id": "feature4_graficos.charts.chatintegration",
+            "title": "Integração com chat",
+            "description": "Exibir gráficos nas respostas",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-09",
+          "dueDate": "2025-10-15",
+          "status": "TODO"
+        }
+      ]
+    },
+    {
+      "id": "Sprint3",
+      "name": "Sprint 3: Padronização da IA - Parte 1",
+      "description": "16/10/2025 -- 22/10/2025",
+      "startDate": "2025-10-16",
+      "endDate": "2025-10-22",
+      "status": "PLANNED",
+      "sprintItems": [
+        {
+          "id": "feature6_padraorespostas.responseparams.aiintegration",
+          "assignee": {
+            "id": "vitor",
+            "name": "nascimentoVitor10",
+            "email": "vitorramosnascimento10@gmail.com"
+          },
+          "issue": {
+            "id": "feature6_padraorespostas.responseparams.aiintegration",
+            "title": "Integração com IA",
+            "description": "Aplicar parâmetros nas chamadas",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-16",
+          "dueDate": "2025-10-22",
+          "status": "TODO"
+        }
+      ]
+    },
+    {
+      "id": "Sprint4",
+      "name": "Sprint 4: Interface e UX",
+      "description": "23/10/2025 -- 29/10/2025",
+      "startDate": "2025-10-23",
+      "endDate": "2025-10-29",
+      "status": "PLANNED",
+      "sprintItems": [
+        {
+          "id": "feature5_ui.createauthui.authandtokenui",
+          "assignee": {
+            "id": "alicia",
+            "name": "aliciacapo",
+            "email": "alicia.caporrali@gmail.com"
+          },
+          "issue": {
+            "id": "feature5_ui.createauthui.authandtokenui",
+            "title": "UI de Autenticação e Token",
+            "description": "Criar telas de login, cadastro e gerenciamento de token com design responsivo",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-23",
+          "dueDate": "2025-10-29",
+          "status": "TODO"
+        }
+      ]
+    },
+    {
+      "id": "Sprint5",
+      "name": "Sprint 5: Autenticação Segura",
+      "description": "30/10/2025 -- 05/11/2025",
+      "startDate": "2025-10-30",
+      "endDate": "2025-11-05",
+      "status": "PLANNED",
+      "sprintItems": [
+        {
+          "id": "feature1_autenticacao.implementregistration.createregistrationform",
+          "assignee": {
+            "id": "sofia",
+            "name": "sofianasilva",
+            "email": "sofianascimento307@gmail.com"
+          },
+          "issue": {
+            "id": "feature1_autenticacao.implementregistration.createregistrationform",
+            "title": "Criar formulário de registro",
+            "description": "Frontend e validações",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-30",
+          "dueDate": "2025-11-05",
+          "status": "TODO"
+        },
+        {
+          "id": "feature1_autenticacao.implementregistration.setupauthbackend",
+          "assignee": {
+            "id": "sofia",
+            "name": "sofianasilva",
+            "email": "sofianascimento307@gmail.com"
+          },
+          "issue": {
+            "id": "feature1_autenticacao.implementregistration.setupauthbackend",
+            "title": "Criar endpoints de autenticação",
+            "description": "Endpoints de registro e login",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-10-30",
+          "dueDate": "2025-11-05",
+          "status": "TODO"
+        }
+      ]
+    },
+    {
+      "id": "Sprint6",
+      "name": "Sprint 6: Gerenciamento de Token - Parte 1",
+      "description": "06/11/2025 -- 12/11/2025",
+      "startDate": "2025-11-06",
+      "endDate": "2025-11-12",
+      "status": "PLANNED",
+      "sprintItems": [
+        {
+          "id": "feature2_token.tokenui.createtokenform",
+          "assignee": {
+            "id": "vitor",
+            "name": "nascimentoVitor10",
+            "email": "vitorramosnascimento10@gmail.com"
+          },
+          "issue": {
+            "id": "feature2_token.tokenui.createtokenform",
+            "title": "Criar formulário de token",
+            "description": "Interface para entrada de tokens",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-11-06",
+          "dueDate": "2025-11-12",
+          "status": "TODO"
+        },
+        {
+          "id": "feature2_token.tokenui.tokenvalidation",
+          "assignee": {
+            "id": "vitor",
+            "name": "nascimentoVitor10",
+            "email": "vitorramosnascimento10@gmail.com"
+          },
+          "issue": {
+            "id": "feature2_token.tokenui.tokenvalidation",
+            "title": "Validar token",
+            "description": "Verificar formato e validade do token",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-11-06",
+          "dueDate": "2025-11-12",
+          "status": "TODO"
+        }
+      ]
+    },
+    {
+      "id": "Sprint7",
+      "name": "Sprint 7: Gerenciamento de Token - Parte 2",
+      "description": "13/11/2025 -- 19/11/2025",
+      "startDate": "2025-11-13",
+      "endDate": "2025-11-19",
+      "status": "PLANNED",
+      "sprintItems": [
+        {
+          "id": "feature2_token.securestorage.implementencryption",
+          "assignee": {
+            "id": "alicia",
+            "name": "aliciacapo",
+            "email": "alicia.caporrali@gmail.com"
+          },
+          "issue": {
+            "id": "feature2_token.securestorage.implementencryption",
+            "title": "Implementar criptografia",
+            "description": "Criptografar tokens antes de salvar",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-11-13",
+          "dueDate": "2025-11-19",
+          "status": "TODO"
+        },
+        {
+          "id": "feature2_token.securestorage.storagelayer",
+          "assignee": {
+            "id": "alicia",
+            "name": "aliciacapo",
+            "email": "alicia.caporrali@gmail.com"
+          },
+          "issue": {
+            "id": "feature2_token.securestorage.storagelayer",
+            "title": "Camada de armazenamento",
+            "description": "Persistir tokens criptografados",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-11-13",
+          "dueDate": "2025-11-19",
+          "status": "TODO"
+        }
+      ]
+    },
+    {
+      "id": "Sprint8",
+      "name": "Sprint 8: Estabilização e Revisão Final",
+      "description": "20/11/2025 -- 30/11/2025",
+      "startDate": "2025-11-20",
+      "endDate": "2025-11-30",
+      "status": "PLANNED",
+      "sprintItems": [
+        {
+          "id": "feature1_autenticacao.implementacl.defineroles",
+          "assignee": {
+            "id": "sofia",
+            "name": "sofianasilva",
+            "email": "sofianascimento307@gmail.com"
+          },
+          "issue": {
+            "id": "feature1_autenticacao.implementacl.defineroles",
+            "title": "Definir papéis e permissões",
+            "description": "Modelagem de roles e permissões",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-11-20",
+          "dueDate": "2025-11-30",
+          "status": "TODO"
+        },
+        {
+          "id": "feature1_autenticacao.implementacl.applyacl",
+          "assignee": {
+            "id": "sofia",
+            "name": "sofianasilva",
+            "email": "sofianascimento307@gmail.com"
+          },
+          "issue": {
+            "id": "feature1_autenticacao.implementacl.applyacl",
+            "title": "Aplicar ACL aos recursos",
+            "description": "Filtrar dados por proprietário",
+            "type": "taskbacklog",
+            "subtype": "",
+            "depends": []
+          },
+          "startDate": "2025-11-20",
+          "dueDate": "2025-11-30",
+          "status": "TODO"
+        }
+      ]
+    }
+  ]
+}
