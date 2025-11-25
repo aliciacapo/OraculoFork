@@ -8,7 +8,12 @@ from google import genai
 from src.api.database.MyVanna import MyVanna
 import json
 from typing import Dict, Optional
+import pandas as pd
+import matplotlib.pyplot as plt
+import uuid
+import os
 import hashlib
+import re
 
 from src.assets.aux.env import env
 
@@ -18,6 +23,44 @@ GEMINI_MODEL_NAME = env["GEMINI_MODEL_NAME"]
 
 
 class AskController(metaclass=SingletonMeta):
+
+        # Diretório estático para salvar gráficos
+        STATIC_DIR = os.path.join(os.getcwd(), "static", "graficos")
+
+        def _generate_chart_if_requested(self, resultado, wants_chart: bool):
+            """
+            Gera um gráfico a partir do resultado se wants_chart for True.
+            Salva o gráfico em arquivo e retorna o link, ou mensagem de erro se não houver dados.
+            """
+            if not wants_chart:
+                return None
+            # Garante que o diretório existe
+            os.makedirs(self.STATIC_DIR, exist_ok=True)
+            df = pd.DataFrame(resultado)
+            if df.empty:
+                return {"output": "Não há dados suficientes para gerar um gráfico."}
+
+            plt.figure(figsize=(8, 5))
+            if df.shape[1] >= 2:
+                x = df.columns[0]
+                y = df.columns[1]
+                plt.bar(df[x], df[y])
+                plt.xlabel(x)
+                plt.ylabel(y)
+                plt.title("Gráfico gerado a partir dos dados")
+            else:
+                plt.plot(df[df.columns[0]])
+                plt.title("Gráfico gerado a partir dos dados")
+
+            filename = f"{uuid.uuid4()}.png"
+            filepath = os.path.join(self.STATIC_DIR, filename)
+            plt.tight_layout()
+            plt.savefig(filepath)
+            plt.close()
+
+            link = f"http://localhost:8000/static/graficos/{filename}"
+            return {"output": f"Gráfico gerado: [Clique aqui para visualizar]({link})", "grafico_url": link}
+        
     def __init__(self):
         self.client = genai.Client(api_key=GEMINI_API_KEY)
 
@@ -53,6 +96,18 @@ class AskController(metaclass=SingletonMeta):
         # Cache simples para queries SQL (em memória)
         self.sql_cache: Dict[str, str] = {}
         self.result_cache: Dict[str, any] = {}
+    
+    def _detect_chart_request(self, question: str) -> bool:
+            """
+            Detecta se a pergunta do usuário sugere a geração de um gráfico.
+            """
+            chart_keywords = [
+                "gráfico", "grafico", "plot", "visualização", "visualizacao",
+                "chart", "plotar", "desenhar gráfico", "desenhar grafico", "mostrar gráfico",
+                "mostrar grafico", "visualize", "visualizar", "figure", "figura"
+            ]
+            question_lower = question.lower()
+            return any(kw in question_lower for kw in chart_keywords)
 
     def _preprocess_question(self, question: str) -> str:
         """
@@ -89,12 +144,13 @@ Sua função é:
    - "mudança" → "commit"
    - "alteração" → "commit"
 5. Expandir a pergunta com contexto necessário do histórico
+6. Desenvolver análises robustas dos dados extraídos para que insight valiosos sejam extraídos
+7. 
 
 REGRAS CRÍTICAS:
 - Se a pergunta fizer referência a algo anterior ("e aquele", "o outro", "também"), inclua o contexto explícito
 - Se não houver referência contextual, retorne a pergunta apenas normalizada
-- NÃO explique, NÃO confirme, NÃO dê exemplos
-- Retorne APENAS a pergunta processada e expandida em uma única linha"""
+"""
 
             # Monta mensagens
             messages = [
@@ -139,14 +195,27 @@ REGRAS CRÍTICAS:
         if not sql_upper.startswith("SELECT"):
             return False, "Apenas queries SELECT são permitidas"
         
-        # Blacklist: operações perigosas
-        dangerous_keywords = [
-            "DELETE", "DROP", "TRUNCATE", "INSERT", 
-            "UPDATE", "ALTER", "CREATE", "GRANT", "REVOKE"
+        # Blacklist com word boundaries (evita falsos positivos)
+        dangerous_patterns = [
+            r'\bDELETE\b',
+            r'\bDROP\b',
+            r'\bTRUNCATE\b',
+            r'\bINSERT\b',
+            r'\bUPDATE\b',
+            r'\bALTER\b',
+            r'\bCREATE\s+TABLE\b',  # Só bloqueia "CREATE TABLE", não "created_by"
+            r'\bCREATE\s+INDEX\b',
+            r'\bCREATE\s+DATABASE\b',
+            r'\bGRANT\b',
+            r'\bREVOKE\b',
+            r'\bEXEC\b',
+            r'\bEXECUTE\b',
+            r';\s*\w+',  # SQL injection
         ]
         
-        for keyword in dangerous_keywords:
-            if keyword in sql_upper:
+        for pattern in dangerous_patterns:
+            if re.search(pattern, sql_upper):
+                keyword = pattern.replace(r'\b', '').replace(r'\s+', ' ')
                 return False, f"Operação '{keyword}' não é permitida"
         
         # Limite de complexidade (número de JOINs)
@@ -225,6 +294,9 @@ Responda de forma conversacional e útil.
             original_question = question.question
             print(f"[Original] {original_question}")
 
+            # Detectar intenção de gráfico
+            wants_chart = self._detect_chart_request(original_question)
+
             # Etapa 1: Pré-processar com contexto
             processed_question = self._preprocess_question(original_question)
             print(f"[Preprocessed] {processed_question}")
@@ -278,24 +350,31 @@ Responda de forma conversacional e útil.
                 self.result_cache[result_cache_key] = resultado
                 print(f"[Cache Miss] Resultado obtido e armazenado")
 
-            # Etapa 4: Formatar resposta com contexto
+            # Etapa 4: Gerar gráfico se solicitado
+            chart_result = self._generate_chart_if_requested(resultado, wants_chart)
+
+            # Etapa 5: Formatar resposta com contexto
             resposta_formatada = self._format_response_with_context(
                 question=original_question,
                 sql=sql_gerado,
                 result=resultado
             )
 
-            # Etapa 5: Salvar na memória
+            # Etapa 6: Salvar na memória
             self.memory.save_context(
                 inputs={"question": original_question},
                 outputs={"answer": resposta_formatada}
             )
 
-            return {
+            response = {
                 "output": resposta_formatada,
                 "sql": sql_gerado,
-                "cached": result_cache_key in self.result_cache
+                "cached": result_cache_key in self.result_cache,
+                "wants_chart": wants_chart
             }
+            if chart_result:
+                response.update(chart_result)
+            return response
 
         except Exception as e:
             import traceback
@@ -314,7 +393,8 @@ Responda de forma conversacional e útil.
 
             return {
                 "output": error_msg,
-                "error": True
+                "error": True,
+                "wants_chart": False
             }
 
     def clear_memory(self):

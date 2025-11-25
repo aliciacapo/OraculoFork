@@ -164,224 +164,50 @@ class MyVanna(ChromaDB_VectorStoreReset, GoogleGeminiChat):
 
 
     def prepare(self):
+        """
+        Prepara o Vanna com treinamento inicial CORRIGIDO
+        
+        Args:
+            force_retrain: Se True, força o retreinamento mesmo se já existir cache
+        """
+        
+        # Conectar ao banco
         self.connect_to_postgres(
-            host = DB_HOST,
-            port = DB_PORT,
-            dbname = DB_NAME,
-            user = DB_USER,
-            password = DB_PASSWORD
+            host=DB_HOST,
+            port=DB_PORT,
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD
         )
 
+        
+        print("[Vanna] → Iniciando treinamento (isso consome API quota)...")
+        
+        # =========================================================================
+        # ETAPA 1: Treinar com DDL (estrutura real do banco)
+        # =========================================================================
+        print("[Vanna] 1/2 Treinando DDL...")
         self.train(ddl=self.get_schema())
 
+        print("[Vanna] 2/2 Treinando SQL Examples e documentação...")
+        self.train(sql=open("src/api/database/sql_examples.sql").read())
+
         self.train(documentation="""
-Table: user_info
+            O banco contempla atividades de GitHub:
 
-    id: Bigint primary key with default value from sequence
+            - user_info: usuários
+            - repository: repositórios
+            - branch: branches dos repositórios
+            - issue: issues criadas
+            - pull_requests: PRs
+            - commits: commits de usuários, podendo referenciar PRs
+            - issue_assignees / pull_request_assignees: responsáveis
+            - milestone: grupo de issues e PRs
 
-    login: Required username field (character varying)
+            Consultas esperadas: ranking, agregações, contagem de atividades, obtenção de repositórios mais ativos e etc.
 
-    html_url: Required profile URL field (text)
-
-Table: milestone
-
-    id: Bigint primary key with default value from sequence
-
-    repository_id: Associated repository ID (integer, required)
-
-    title: Milestone title (text, required)
-
-    description: Milestone description (text, optional)
-
-    number: Milestone number (integer, required)
-
-    state: Milestone state (character varying, required)
-
-    created_at: Creation timestamp with time zone
-
-    updated_at: Update timestamp with time zone
-
-    creator: Creator user ID (bigint, required)
-
-Table: repository
-
-    id: Integer primary key with default value from sequence
-
-    name: Repository name (character varying, required)
-
-Table: branch
-
-    id: Bigint primary key with default value from sequence
-
-    name: Branch name (character varying, required)
-
-    repository_id: Associated repository ID (integer, required)
-
-Table: issue
-
-    id: Bigint primary key with default value from sequence
-
-    title: Issue title (text, required)
-
-    body: Issue body/description (text, optional)
-
-    number: Issue number (integer, required)
-
-    html_url: Issue URL (text, optional)
-
-    created_at: Creation timestamp with time zone
-
-    updated_at: Update timestamp with time zone
-
-    created_by: Creator user ID (bigint, required)
-
-    repository_id: Associated repository ID (bigint, required)
-
-    milestone_id: Associated milestone ID (bigint, optional)
-
-Table: pull_requests
-
-    id: Bigint primary key with default value from sequence
-
-    created_by: Creator user ID (bigint, required)
-
-    repository_id: Associated repository ID (integer, required)
-
-    number: Pull request number (integer, required)
-
-    state: Pull request state (character varying, required)
-
-    title: Pull request title (text, required)
-
-    body: Pull request body/description (text, optional)
-
-    html_url: Pull request URL (text, required)
-
-    created_at: Creation timestamp with time zone
-
-    updated_at: Update timestamp with time zone
-
-    milestone_id: Associated milestone ID (bigint, optional)
-
-Table: commits
-
-    id: Bigint primary key with default value from sequence
-
-    user_id: Author user ID (bigint, required)
-
-    branch_id: Associated branch ID (integer, optional)
-
-    pull_request_id: Associated pull request ID (bigint, optional)
-
-    created_at: Creation timestamp with time zone
-
-    message: Commit message (text, required)
-
-    sha: Commit SHA hash (character varying, required)
-
-    html_url: Commit URL (text, optional)
-
-Table: parents_commits
-
-    id: Integer primary key with default value from sequence
-
-    parent_sha: Parent commit SHA hash (character varying, required)
-
-    commit_id: Child commit ID (integer, required)
-
-Table: issue_assignees
-
-    issue_id: Issue ID (bigint, required, part of primary key)
-
-    user_id: Assigned user ID (bigint, required, part of primary key)
-
-Table: pull_request_assignees
-
-    pull_request_id: Pull request ID (bigint, required, part of primary key)
-
-    user_id: Assigned user ID (bigint, required, part of primary key)
-        """)
+            """)
         
-        self.train(sql="""
-        -- 1. Repositórios com mais issues abertas
-        SELECT
-            r.name AS repositorio,
-            COUNT(*) AS total_issues_abertas,
-            MAX(i.created_at) AS data_ultima_issue
-        FROM
-            issue i
-        JOIN
-            repository r ON i.repository_id = r.id
-        WHERE
-            i.state = 'open'
-        GROUP BY
-            r.name
-        ORDER BY
-            total_issues_abertas DESC
-        LIMIT 10;
-        """)
-
-        self.train(sql="""
-        -- 2. Top 5 usuários com mais commits registrados
-        SELECT
-            u.login,
-            COUNT(*) AS total_commits
-        FROM
-            commits c
-        JOIN
-            user_info u ON c.user_id = u.id
-        GROUP BY
-            u.login
-        ORDER BY
-            total_commits DESC
-        LIMIT 5;
-        """)
-
-        self.train(sql="""
-        -- 3. Total de pull requests abertos por repositório
-        SELECT
-            r.name AS repositorio,
-            COUNT(*) AS total_pr_abertos
-        FROM
-            pull_requests pr
-        JOIN
-            repository r ON pr.repository_id = r.id
-        WHERE
-            pr.state = 'open'
-        GROUP BY
-            r.name
-        ORDER BY
-            total_pr_abertos DESC;
-        """)
-
-        self.train(sql="""
-        -- 4. Número de issues por milestone
-        SELECT
-            m.title AS milestone,
-            COUNT(*) AS total_issues
-        FROM
-            issue i
-        JOIN
-            milestone m ON i.milestone_id = m.id
-        GROUP BY
-            m.title
-        ORDER BY
-            total_issues DESC;
-        """)
-
-        self.train(sql="""
-        -- 5. Commits feitos por branch
-        SELECT
-            b.name AS branch,
-            COUNT(*) AS total_commits
-        FROM
-            commits c
-        JOIN
-            branch b ON c.branch_id = b.id
-        GROUP BY
-            b.name
-        ORDER BY
-            total_commits DESC;
-        """)
 
 
+        
