@@ -24,10 +24,10 @@ GEMINI_MODEL_NAME = env["GEMINI_MODEL_NAME"]
 
 class AskController(metaclass=SingletonMeta):
 
-        # Diretório estático para salvar gráficos
-        STATIC_DIR = os.path.join(os.getcwd(), "static", "graficos")
+    # Diretório estático para salvar gráficos
+    STATIC_DIR = os.path.join(os.getcwd(), "static", "graficos")
 
-        def _generate_chart_if_requested(self, resultado, wants_chart: bool):
+    def _generate_chart_if_requested(self, resultado, wants_chart: bool):
             """
             Gera um gráfico a partir do resultado se wants_chart for True.
             Salva o gráfico em arquivo e retorna o link, ou mensagem de erro se não houver dados.
