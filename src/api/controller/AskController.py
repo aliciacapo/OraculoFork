@@ -26,7 +26,43 @@ class AskController(metaclass=SingletonMeta):
 
     # Diretório estático para salvar gráficos
     STATIC_DIR = os.path.join(os.getcwd(), "static", "graficos")
+        
+    def __init__(self):
+        self.client = genai.Client(api_key=GEMINI_API_KEY)
 
+        # LLM principal para geração de respostas
+        self.llm = ChatGoogleGenerativeAI(
+            model=GEMINI_MODEL_NAME,
+            google_api_key=GEMINI_API_KEY,
+            temperature=0,
+            max_tokens=None,
+            timeout=None,
+            max_retries=2,
+            convert_system_message_to_human=True
+        )
+
+        # Memória conversacional (mantém últimas 5 interações)
+        self.memory = ConversationBufferWindowMemory(
+            k=5,
+            memory_key="chat_history",
+            return_messages=True,
+            input_key="question",
+            output_key="answer"
+        )
+
+        # Instância do vanna
+        self.vn = MyVanna(config={
+            'print_prompt': False,
+            'print_sql': False,
+            'api_key': GEMINI_API_KEY,
+            'model_name': GEMINI_MODEL_NAME
+        })
+        self.vn.prepare()
+
+        # Cache simples para queries SQL (em memória)
+        self.sql_cache: Dict[str, str] = {}
+        self.result_cache: Dict[str, any] = {}
+    
     def _generate_chart_if_requested(self, resultado, wants_chart: bool):
             """
             Gera um gráfico a partir do resultado se wants_chart for True.
@@ -60,42 +96,6 @@ class AskController(metaclass=SingletonMeta):
 
             link = f"http://localhost:8000/static/graficos/{filename}"
             return {"output": f"Gráfico gerado: [Clique aqui para visualizar]({link})", "grafico_url": link}
-        
-    def __init__(self):
-        self.client = genai.Client(api_key=GEMINI_API_KEY)
-
-        # LLM principal para geração de respostas
-        self.llm = ChatGoogleGenerativeAI(
-            model=GEMINI_MODEL_NAME,
-            google_api_key=GEMINI_API_KEY,
-            temperature=0,
-            max_tokens=None,
-            timeout=None,
-            max_retries=2,
-            convert_system_message_to_human=True
-        )
-
-        # Memória conversacional (mantém últimas 5 interações)
-        self.memory = ConversationBufferWindowMemory(
-            k=5,  # Número de interações a manter
-            memory_key="chat_history",
-            return_messages=True,
-            input_key="question",
-            output_key="answer"
-        )
-
-        # Instância do vanna
-        self.vn = MyVanna(config={
-            'print_prompt': False,
-            'print_sql': False,
-            'api_key': GEMINI_API_KEY,
-            'model_name': GEMINI_MODEL_NAME
-        })
-        self.vn.prepare()
-
-        # Cache simples para queries SQL (em memória)
-        self.sql_cache: Dict[str, str] = {}
-        self.result_cache: Dict[str, any] = {}
     
     def _detect_chart_request(self, question: str) -> bool:
             """
@@ -133,24 +133,24 @@ class AskController(metaclass=SingletonMeta):
             # Monta o prompt
             system_prompt = """Você é um assistente especializado em processar perguntas sobre dados do GitHub.
 
-Sua função é:
-1. Analisar o histórico da conversa para entender o contexto
-2. Resolver referências contextuais (ex: "e no mês passado?", "mostre mais detalhes", "e o outro repositório?")
-3. Normalizar expressões temporais:
-   - "3 meses" → "90 dias"
-   - "1 ano e 2 meses" → "425 dias"
-   - Meses separados = 30 dias cada
-4. Normalizar terminologia:
-   - "mudança" → "commit"
-   - "alteração" → "commit"
-5. Expandir a pergunta com contexto necessário do histórico
-6. Desenvolver análises robustas dos dados extraídos para que insight valiosos sejam extraídos
-7. 
+        Sua função é:
+        1. Analisar o histórico da conversa para entender o contexto
+        2. Resolver referências contextuais (ex: "e no mês passado?", "mostre mais detalhes", "e o outro repositório?")
+        3. Normalizar expressões temporais:
+        - "3 meses" → "90 dias"
+        - "1 ano e 2 meses" → "425 dias"
+        - Meses separados = 30 dias cada
+        4. Normalizar terminologia:
+        - "mudança" → "commit"
+        - "alteração" → "commit"
+        5. Expandir a pergunta com contexto necessário do histórico
+        6. Desenvolver análises robustas dos dados extraídos para que insight valiosos sejam extraídos
+        7. 
 
-REGRAS CRÍTICAS:
-- Se a pergunta fizer referência a algo anterior ("e aquele", "o outro", "também"), inclua o contexto explícito
-- Se não houver referência contextual, retorne a pergunta apenas normalizada
-"""
+        REGRAS CRÍTICAS:
+        - Se a pergunta fizer referência a algo anterior ("e aquele", "o outro", "também"), inclua o contexto explícito
+        - Se não houver referência contextual, retorne a pergunta apenas normalizada
+        """
 
             # Monta mensagens
             messages = [
@@ -203,7 +203,7 @@ REGRAS CRÍTICAS:
             r'\bINSERT\b',
             r'\bUPDATE\b',
             r'\bALTER\b',
-            r'\bCREATE\s+TABLE\b',  # Só bloqueia "CREATE TABLE", não "created_by"
+            r'\bCREATE\s+TABLE\b', 
             r'\bCREATE\s+INDEX\b',
             r'\bCREATE\s+DATABASE\b',
             r'\bGRANT\b',
@@ -243,28 +243,28 @@ REGRAS CRÍTICAS:
                     history_context += f"Assistente: {msg.content}\n"
 
         prompt = f"""
-Você é um assistente especializado em análise de dados do GitHub.
+            Você é um assistente especializado em análise de dados do GitHub.
 
-{history_context}
+            {history_context}
 
-Pergunta atual: "{question}"
+            Pergunta atual: "{question}"
 
-SQL gerado e executado:
-```sql
-{sql}
-```
+            SQL gerado e executado:
+            ```sql
+            {sql}
+            ```
 
-Resultado da consulta: {result}
+            Resultado da consulta: {result}
 
-Com base no contexto da conversa e nos resultados, gere uma resposta:
-1. Clara e direta
-2. Em linguagem natural
-3. Destacando insights relevantes
-4. Relacionando com perguntas anteriores se aplicável
-5. Formato estruturado se houver múltiplos dados
+            Com base no contexto da conversa e nos resultados, gere uma resposta:
+            1. Clara e direta
+            2. Em linguagem natural
+            3. Destacando insights relevantes
+            4. Relacionando com perguntas anteriores se aplicável
+            5. Formato estruturado se houver múltiplos dados
 
-Responda de forma conversacional e útil.
-"""
+            Responda de forma conversacional e útil.
+            """
 
         try:
             response = self.client.models.generate_content(
