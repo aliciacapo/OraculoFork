@@ -1,0 +1,249 @@
+{
+  "data": [
+    {
+      "id": "productbacklog.feature1_autenticacao",
+      "title": "Autenticação de Usuário e Controle de Acesso",
+      "description": "Desenvolvimento completo do subsistema de autenticação com Registro, Login seguro e Controle de Acesso (ACL)",
+      "type": "epic",
+      "issues": [
+        {
+          "id": "productbacklog.feature1_autenticacao.implementregistration",
+          "title": "Implementar Sistema de Registro",
+          "description": "Formulário de registro, validações e persistência segura",
+          "type": "atomicuserstory",
+          "issues": [
+            {
+              "id": "productbacklog.feature1_autenticacao.implementregistration.createregistrationform",
+              "title": "Criar formulário de registro",
+              "description": "Frontend e validações",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature1_autenticacao.implementregistration.setupauthbackend",
+              "title": "Criar endpoints de autenticação",
+              "description": "Endpoints de registro e login",
+              "type": "taskbacklog",
+              "depends": []
+            }
+          ],
+          "depends": []
+        },
+        {
+          "id": "productbacklog.feature1_autenticacao.implementacl",
+          "title": "Implementar ACL",
+          "description": "Permissões para visualizar/editar somente dados próprios",
+          "type": "atomicuserstory",
+          "issues": [
+            {
+              "id": "productbacklog.feature1_autenticacao.implementacl.defineroles",
+              "title": "Definir papéis e permissões",
+              "description": "Modelagem de roles e permissões",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature1_autenticacao.implementacl.applyacl",
+              "title": "Aplicar ACL aos recursos",
+              "description": "Filtrar dados por proprietário",
+              "type": "taskbacklog",
+              "depends": []
+            }
+          ],
+          "depends": []
+        }
+      ],
+      "depends": []
+    },
+    {
+      "id": "productbacklog.feature2_token",
+      "title": "Gerenciamento Dinâmico de Token",
+      "description": "Funcionalidade na UI para inserir, visualizar e atualizar token de acesso ao repositório",
+      "type": "epic",
+      "issues": [
+        {
+          "id": "productbacklog.feature2_token.tokenui",
+          "title": "Interface de gerenciamento de token",
+          "description": "Entrada segura para tokens, visualização parcial e atualização",
+          "type": "atomicuserstory",
+          "issues": [
+            {
+              "id": "productbacklog.feature2_token.tokenui.createtokenform",
+              "title": "Criar formulário de token",
+              "description": "Interface para entrada de tokens",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature2_token.tokenui.tokenvalidation",
+              "title": "Validar token",
+              "description": "Verificar formato e validade do token",
+              "type": "taskbacklog",
+              "depends": []
+            }
+          ],
+          "depends": []
+        },
+        {
+          "id": "productbacklog.feature2_token.securestorage",
+          "title": "Armazenamento Seguro",
+          "description": "Criptografar e armazenar tokens de forma segura",
+          "type": "atomicuserstory",
+          "issues": [
+            {
+              "id": "productbacklog.feature2_token.securestorage.implementencryption",
+              "title": "Implementar criptografia",
+              "description": "Criptografar tokens antes de salvar",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature2_token.securestorage.storagelayer",
+              "title": "Camada de armazenamento",
+              "description": "Persistir tokens criptografados",
+              "type": "taskbacklog",
+              "depends": []
+            }
+          ],
+          "depends": []
+        }
+      ],
+      "depends": []
+    },
+    {
+      "id": "productbacklog.feature3_memoria",
+      "title": "Memória Contextual com LangChain",
+      "description": "Camada de memória para interações com IA usando LangChain para contexto contínuo",
+      "type": "epic",
+      "issues": [
+        {
+          "id": "productbacklog.feature3_memoria.initialmemory",
+          "title": "Memória inicial LangChain",
+          "description": "Integração básica para armazenar e recuperar contexto",
+          "type": "atomicuserstory",
+          "issues": [
+            {
+              "id": "productbacklog.feature3_memoria.initialmemory.setuplangchain",
+              "title": "Configurar LangChain",
+              "description": "Instalar e configurar biblioteca",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature3_memoria.initialmemory.memorystore",
+              "title": "Armazenamento de memória",
+              "description": "Criar store para histórico",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature3_memoria.initialmemory.integratechat",
+              "title": "Integrar com chat",
+              "description": "Usar contexto nas respostas",
+              "type": "taskbacklog",
+              "depends": []
+            }
+          ],
+          "depends": []
+        }
+      ],
+      "depends": []
+    },
+    {
+      "id": "productbacklog.feature4_graficos",
+      "title": "Geração de Gráficos e Visualização de Dados",
+      "description": "Capacidade de gerar gráficos usando Matplotlib/Pandas e exibir na interface do chat",
+      "type": "epic",
+      "issues": [
+        {
+          "id": "productbacklog.feature4_graficos.charts",
+          "title": "Implementar geração de gráficos",
+          "description": "API/backend para gerar imagens e exibir no chat",
+          "type": "atomicuserstory",
+          "issues": [
+            {
+              "id": "productbacklog.feature4_graficos.charts.setuplibraries",
+              "title": "Configurar bibliotecas",
+              "description": "Instalar Matplotlib, Pandas, Plotly",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature4_graficos.charts.datapipeline",
+              "title": "Pipeline de dados",
+              "description": "Processar dados para visualização",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature4_graficos.charts.chartgeneration",
+              "title": "Geração de gráficos",
+              "description": "Criar diferentes tipos de gráficos",
+              "type": "taskbacklog",
+              "depends": []
+            },
+            {
+              "id": "productbacklog.feature4_graficos.charts.chatintegration",
+              "title": "Integração com chat",
+              "description": "Exibir gráficos nas respostas",
+              "type": "taskbacklog",
+              "depends": []
+            }
+          ],
+          "depends": []
+        }
+      ],
+      "depends": []
+    },
+    {
+      "id": "productbacklog.feature5_ui",
+      "title": "Design de Frontend e Usabilidade (UX)",
+      "description": "Interface de Usuário responsiva e moderna para Login, Cadastro e Gerenciamento de Token",
+      "type": "epic",
+      "issues": [
+        {
+          "id": "productbacklog.feature5_ui.createauthui",
+          "title": "Criar UI de Autenticação e Token",
+          "description": "Design responsivo e fluxos simplificados para login, cadastro e gerenciamento de token",
+          "type": "atomicuserstory",
+          "issues": [
+            {
+              "id": "productbacklog.feature5_ui.createauthui.authandtokenui",
+              "title": "UI de Autenticação e Token",
+              "description": "Criar telas de login, cadastro e gerenciamento de token com design responsivo",
+              "type": "taskbacklog",
+              "depends": []
+            }
+          ],
+          "depends": []
+        }
+      ],
+      "depends": []
+    },
+    {
+      "id": "productbacklog.feature6_padraorespostas",
+      "title": "Padronização de Respostas da IA",
+      "description": "Sistema de controle de parâmetros (temperature, top_p, estilo) para respostas consistentes da IA",
+      "type": "epic",
+      "issues": [
+        {
+          "id": "productbacklog.feature6_padraorespostas.responseparams",
+          "title": "Sistema de parâmetros da IA",
+          "description": "Permitir pelo código controlar parâmetros de resposta para padronização",
+          "type": "atomicuserstory",
+          "issues": [
+            {
+              "id": "productbacklog.feature6_padraorespostas.responseparams.aiintegration",
+              "title": "Integração com IA",
+              "description": "Aplicar parâmetros nas chamadas",
+              "type": "taskbacklog",
+              "depends": []
+            }
+          ],
+          "depends": []
+        }
+      ],
+      "depends": []
+    }
+  ]
+}

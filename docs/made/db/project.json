@@ -1,0 +1,12 @@
+{
+  "data": [
+    {
+      "id": "backlogproject",
+      "name": "Backlog de Features - MADE",
+      "description": "Conversão automática do backlog.md para um arquivo .made contendo Project, Backlog, TimeBoxes (sprints), Roadmap e Milestones.",
+      "startDate": "2025-10-02",
+      "dueDate": "2025-11-30",
+      "completedDate": ""
+    }
+  ]
+}

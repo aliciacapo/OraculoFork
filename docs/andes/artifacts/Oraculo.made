@@ -1,0 +1,38 @@
+
+project Oraculo {
+	name: "Oráculo"
+	description: "Chatbot para análise de repositórios GitHub"
+	startDate: 2025-11-01
+	dueDate: 2025-11-01
+}
+
+backlog Oraculo {
+	name: "Oráculo"
+	description: "Chatbot para análise de repositórios GitHub"
+	epic Authentication {
+		name: "Authentication"
+	}
+	epic TokenManagement {
+		name: "TokenManagement"
+	}
+	epic ChatInteraction {
+		name: "ChatInteraction"
+	}
+	epic DataVisualization {
+		name: "DataVisualization"
+	}
+	epic domaindiagram {
+		name: "domaindiagram"
+		story createmodule_OraculoApp {
+			name: "Create database infrastruture to module OraculoApp"
+			observation: ""
+			task create_module {
+				name: "Implements domain modules"
+			}
+			task create_repository {
+				name: "Implements data repository"
+				depends: Oraculo.domaindiagram.createmodule_OraculoApp.create_module
+			}
+		}
+	}
+}
