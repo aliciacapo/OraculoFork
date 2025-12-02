@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Oráculo{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>{{ title }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {{ form.errors }}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.service.id_for_label }}" class="form-label">Service</label>
+                        {{ form.service }}
+                        {% if token %}
+                            <div class="form-text">Current: {{ token.get_service_display }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.token.id_for_label }}" class="form-label">Token Generation</label>
+                        {{ form.token }}
+                        <div class="form-text">{{ form.token.help_text }}</div>
+                        {% if token %}
+                            <div class="form-text">Current token: {{ token.get_masked_token }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong><i class="fas fa-key"></i> JWT Token Generation:</strong> 
+                        {% if token %}
+                            A new JWT token will be generated if you enter any value above. The token will be encrypted before storage and displayed once after creation.
+                        {% else %}
+                            A JWT token will be automatically generated for API authentication. You'll see the full token once after creation to copy for use in OpenWebUI.
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            {% if token %}Update Token{% else %}Save Token{% endif %}
+                        </button>
+                        <a href="{% url 'token_list' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

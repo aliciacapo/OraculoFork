@@ -7,6 +7,9 @@ WORKDIR /app
 # Forçando output sem buffer (Error Handling?)
 ENV PYTHONUNBUFFERED=1
 
+# Indicate this is running in Docker
+ENV DOCKER_CONTAINER=true
+
 # Copia os arquivos do projeto para o contêiner
 COPY requirements.txt .
 
