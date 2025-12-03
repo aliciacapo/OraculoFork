@@ -31,17 +31,37 @@ echo "Collecting static files..."
 python manage.py collectstatic --noinput || echo "Static files collection skipped"
 
 # Create superuser if environment variable is set
-if [ "${CREATE_SUPERUSER:-false}" = "true" ]; then
-    echo "Creating superuser..."
-    python manage.py shell -c "
-from django.contrib.auth.models import User
-if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-    print('Superuser created: admin/admin123')
+CREATE_SUPERUSER=${CREATE_SUPERUSER:-false}
+if [ "$CREATE_SUPERUSER" = "true" ]; then
+    echo "[entrypoint] CREATE_SUPERUSER=true; attempting to create admin user (idempotent)..."
+    
+    DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME:-admin}
+    DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-admin@example.com}
+    DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD:-}
+    
+    if [ -z "$DJANGO_SUPERUSER_PASSWORD" ]; then
+        echo "[entrypoint][warning] DJANGO_SUPERUSER_PASSWORD is empty. Will not create superuser." >&2
+        echo "[entrypoint][warning] Set DJANGO_SUPERUSER_PASSWORD in environment to enable superuser creation." >&2
+    else
+        echo "[entrypoint] Creating superuser with username: $DJANGO_SUPERUSER_USERNAME"
+        python manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+username = '$DJANGO_SUPERUSER_USERNAME'
+email = '$DJANGO_SUPERUSER_EMAIL'
+password = '$DJANGO_SUPERUSER_PASSWORD'
+
+if not User.objects.filter(username=username).exists():
+    User.objects.create_superuser(username=username, email=email, password=password)
+    print('[entrypoint] Superuser created:', username)
 else:
-    print('Superuser already exists')
-" || echo "Superuser creation skipped"
+    print('[entrypoint] Superuser already exists:', username)
+" || echo "[entrypoint][error] Superuser creation failed"
+    fi
+else
+    echo "[entrypoint] CREATE_SUPERUSER is not true; skipping superuser creation."
 fi
+
 
 # Show migration status for debugging
 echo "Migration status:"
