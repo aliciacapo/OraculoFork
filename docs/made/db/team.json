@@ -1,0 +1,53 @@
+{
+  "data": [
+    {
+      "id": "ProjectTeam",
+      "name": "Equipe do Projeto",
+      "description": "Equipe responsável pela gestão do projeto",
+      "teamMembers": [
+        {
+          "id": "livia",
+          "name": "liviahombre",
+          "email": "liviahombre@gmail.com"
+        },
+        {
+          "id": "thiago",
+          "name": "ThiagoFabiano",
+          "email": "thiagoffabiano@gmail.com"
+        },
+        {
+          "id": "pedro",
+          "name": "bedrohenr",
+          "email": "ferfonhp@gmail.com"
+        },
+        {
+          "id": "felipe",
+          "name": "FeLiXp90",
+          "email": "ferfonhp@gmail.com"
+        }
+      ]
+    },
+    {
+      "id": "DevelelopmentTeam",
+      "name": "Equipe de Gestão",
+      "description": "Equipe responsável pelas features descritas no backlog",
+      "teamMembers": [
+        {
+          "id": "sofia",
+          "name": "sofianasilva",
+          "email": "sofianascimento307@gmail.com"
+        },
+        {
+          "id": "alicia",
+          "name": "aliciacapo",
+          "email": "alicia.caporrali@gmail.com"
+        },
+        {
+          "id": "vitor",
+          "name": "nascimentoVitor10",
+          "email": "vitorramosnascimento10@gmail.com"
+        }
+      ]
+    }
+  ]
+}

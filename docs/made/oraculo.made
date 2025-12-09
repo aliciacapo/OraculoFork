@@ -1,0 +1,376 @@
+project BacklogProject {
+    name: "Backlog de Features - MADE"
+    description: "Conversão automática do backlog.md para um arquivo .made contendo Project, Backlog, TimeBoxes (sprints), Roadmap e Milestones."
+    startDate: 2025-10-02
+    dueDate: 2025-11-30
+}
+
+team ProjectTeam {
+    name: "Equipe do Projeto"
+    description: "Equipe responsável pela gestão do projeto"
+
+    teammember livia {
+        name: "liviahombre"
+        email: "liviahombre@gmail.com"
+    }
+    teammember thiago {
+        name: "ThiagoFabiano"
+        email: "thiagoffabiano@gmail.com"
+    }
+    teammember pedro {
+        name: "bedrohenr"
+        email: "ferfonhp@gmail.com"
+    }
+    teammember felipe {
+        name: "FeLiXp90"
+        email: "ferfonhp@gmail.com"
+    }
+}
+team DevelelopmentTeam {
+    name: "Equipe de Gestão"
+    description: "Equipe responsável pelas features descritas no backlog"
+
+    teammember sofia {
+        name: "sofianasilva"
+        email: "sofianascimento307@gmail.com"
+    }
+    teammember alicia {
+        name: "aliciacapo"
+        email: "alicia.caporrali@gmail.com"
+    }
+    teammember vitor {
+        name: "nascimentoVitor10"
+        email: "vitorramosnascimento10@gmail.com"
+    }
+}
+
+backlog ProductBacklog {
+    name: "Product Backlog"
+    description: "Lista de features convertidas do backlog.md"
+
+    epic Feature1_Autenticacao {
+        name: "Autenticação de Usuário e Controle de Acesso"
+        description: "Desenvolvimento completo do subsistema de autenticação com Registro, Login seguro e Controle de Acesso (ACL)"
+        Criterions: "Registro", "Login seguro", "ACL por usuário"
+        observation: "Prioridade: Alta. Complexidade: Alta."
+        
+        story ImplementRegistration {
+            name: "Implementar Sistema de Registro"
+            description: "Formulário de registro, validações e persistência segura"
+            Requirements: "Validação de email", "Senha forte", "Persistência segura"
+            task CreateRegistrationForm {
+                name: "Criar formulário de registro"
+                description: "Frontend e validações"
+                Deliverables: "Formulário", "Validações JS"
+            }
+            task SetupAuthBackend {
+                name: "Criar endpoints de autenticação"
+                description: "Endpoints de registro e login"
+                Deliverables: "API de auth", "Documentação"
+            }
+        }
+        
+        story ImplementACL {
+            name: "Implementar ACL"
+            description: "Permissões para visualizar/editar somente dados próprios"
+            task DefineRoles {
+                name: "Definir papéis e permissões"
+                description: "Modelagem de roles e permissões"
+            }
+            task ApplyACL {
+                name: "Aplicar ACL aos recursos"
+                description: "Filtrar dados por proprietário"
+            }
+        }
+    }
+
+    epic Feature2_Token {
+        name: "Gerenciamento Dinâmico de Token"
+        description: "Funcionalidade na UI para inserir, visualizar e atualizar token de acesso ao repositório"
+        observation: "Prioridade: Média. Complexidade: Alta."
+        
+        story TokenUI {
+            name: "Interface de gerenciamento de token"
+            description: "Entrada segura para tokens, visualização parcial e atualização"
+            task CreateTokenForm {
+                name: "Criar formulário de token"
+                description: "Interface para entrada de tokens"
+            }
+            task TokenValidation {
+                name: "Validar token"
+                description: "Verificar formato e validade do token"
+            }
+        }
+        
+        story SecureStorage {
+            name: "Armazenamento Seguro"
+            description: "Criptografar e armazenar tokens de forma segura"
+            task ImplementEncryption {
+                name: "Implementar criptografia"
+                description: "Criptografar tokens antes de salvar"
+            }
+            task StorageLayer {
+                name: "Camada de armazenamento"
+                description: "Persistir tokens criptografados"
+            }
+        }
+    }
+
+    epic Feature3_Memoria {
+        name: "Memória Contextual com LangChain"
+        description: "Camada de memória para interações com IA usando LangChain para contexto contínuo"
+        observation: "Prioridade: Alta. Complexidade: Média."
+        
+        story InitialMemory {
+            name: "Memória inicial LangChain"
+            description: "Integração básica para armazenar e recuperar contexto"
+            task SetupLangChain {
+                name: "Configurar LangChain"
+                description: "Instalar e configurar biblioteca"
+            }
+            task MemoryStore {
+                name: "Armazenamento de memória"
+                description: "Criar store para histórico"
+            }
+            task IntegrateChat {
+                name: "Integrar com chat"
+                description: "Usar contexto nas respostas"
+            }
+        }
+    }
+
+    epic Feature4_Graficos {
+        name: "Geração de Gráficos e Visualização de Dados"
+        description: "Capacidade de gerar gráficos usando Matplotlib/Pandas e exibir na interface do chat"
+        observation: "Prioridade: Média. Complexidade: Média."
+        
+        story Charts {
+            name: "Implementar geração de gráficos"
+            description: "API/backend para gerar imagens e exibir no chat"
+            task SetupLibraries {
+                name: "Configurar bibliotecas"
+                description: "Instalar Matplotlib, Pandas, Plotly"
+            }
+            task DataPipeline {
+                name: "Pipeline de dados"
+                description: "Processar dados para visualização"
+            }
+            task ChartGeneration {
+                name: "Geração de gráficos"
+                description: "Criar diferentes tipos de gráficos"
+            }
+            task ChatIntegration {
+                name: "Integração com chat"
+                description: "Exibir gráficos nas respostas"
+            }
+        }
+    }
+
+    epic Feature5_UI {
+        name: "Design de Frontend e Usabilidade (UX)"
+        description: "Interface de Usuário responsiva e moderna para Login, Cadastro e Gerenciamento de Token"
+        observation: "Prioridade: Média. Complexidade: Baixa."
+        
+        story CreateAuthUI {
+            name: "Criar UI de Autenticação e Token"
+            description: "Design responsivo e fluxos simplificados para login, cadastro e gerenciamento de token"
+            task AuthAndTokenUI {
+                name: "UI de Autenticação e Token"
+                description: "Criar telas de login, cadastro e gerenciamento de token com design responsivo"
+                Deliverables: "Tela login", "Tela cadastro", "Tela gerenciamento token", "Layout responsivo", "Design system básico"
+            }
+        }
+    }
+
+    epic Feature6_PadraoRespostas {
+        name: "Padronização de Respostas da IA"
+        description: "Sistema de controle de parâmetros (temperature, top_p, estilo) para respostas consistentes da IA"
+        observation: "Prioridade: Baixa. Complexidade: Baixa."
+        
+        story ResponseParams {
+            name: "Sistema de parâmetros da IA"
+            description: "Permitir pelo código controlar parâmetros de resposta para padronização"
+            task AIIntegration {
+                name: "Integração com IA"
+                description: "Aplicar parâmetros nas chamadas"
+            }
+        }
+    }
+}
+
+sprint Sprint1 {
+    name: "Sprint 1: Memória Inicial com LangChain"
+    description: "02/10/2025 -- 08/10/2025"
+    startDate: 2025-10-02
+    endDate: 2025-10-08
+    status: IN_PROGRESS
+    sprintbacklog Sprint1Backlog {
+        item ProductBacklog.Feature3_Memoria.InitialMemory {
+            assignee: DevelelopmentTeam.alicia
+            startDate: 2025-10-02
+            dueDate: 2025-10-08
+            status: DOING
+            complexity: MEDIUM|HARD|SPIKE
+        }
+    }
+}
+
+sprint Sprint2 {
+    name: "Sprint 2: Visualização e Gráficos"
+    description: "09/10/2025 -- 15/10/2025"
+    startDate: 2025-10-09
+    endDate: 2025-10-15
+    status: PLANNED
+    sprintbacklog Sprint2Backlog {
+        item ProductBacklog.Feature4_Graficos.Charts {
+            assignee: DevelelopmentTeam.sofia
+            startDate: 2025-10-09
+            dueDate: 2025-10-15
+            status: TODO
+            complexity: MEDIUM|HARD|SPIKE
+        }
+    }
+}
+
+sprint Sprint3 {
+    name: "Sprint 3: Padronização da IA - Parte 1"
+    description: "16/10/2025 -- 22/10/2025"
+    startDate: 2025-10-16
+    endDate: 2025-10-22
+    status: PLANNED
+    sprintbacklog Sprint3Backlog {
+        item ProductBacklog.Feature6_PadraoRespostas.ResponseParams {
+            assignee: DevelelopmentTeam.vitor
+            startDate: 2025-10-16
+            dueDate: 2025-10-22
+            status: TODO
+            complexity: EASY
+        }
+    }
+}
+
+sprint Sprint4 {
+    name: "Sprint 4: Interface e UX"
+    description: "23/10/2025 -- 29/10/2025"
+    startDate: 2025-10-23
+    endDate: 2025-10-29
+    status: PLANNED
+    sprintbacklog Sprint4Backlog {
+        item ProductBacklog.Feature5_UI.CreateAuthUI {
+            assignee: DevelelopmentTeam.alicia
+            startDate: 2025-10-23
+            dueDate: 2025-10-29
+            status: TODO
+            complexity: EASY
+        }
+    }
+}
+
+sprint Sprint5 {
+    name: "Sprint 5: Autenticação Segura"
+    description: "30/10/2025 -- 05/11/2025"
+    startDate: 2025-10-30
+    endDate: 2025-11-05
+    status: PLANNED
+    sprintbacklog Sprint5Backlog {
+        item ProductBacklog.Feature1_Autenticacao.ImplementRegistration {
+            assignee: DevelelopmentTeam.sofia
+            startDate: 2025-10-30
+            dueDate: 2025-11-05
+            status: TODO
+            complexity: MEDIUM|HARD|SPIKE
+        }
+    }
+}
+
+sprint Sprint6 {
+    name: "Sprint 6: Gerenciamento de Token - Parte 1"
+    description: "06/11/2025 -- 12/11/2025"
+    startDate: 2025-11-06
+    endDate: 2025-11-12
+    status: PLANNED
+    sprintbacklog Sprint6Backlog {
+        item ProductBacklog.Feature2_Token.TokenUI {
+            assignee: DevelelopmentTeam.vitor
+            startDate: 2025-11-06
+            dueDate: 2025-11-12
+            status: TODO
+            complexity: MEDIUM|HARD|SPIKE
+        }
+    }
+}
+
+sprint Sprint7 {
+    name: "Sprint 7: Gerenciamento de Token - Parte 2"
+    description: "13/11/2025 -- 19/11/2025"
+    startDate: 2025-11-13
+    endDate: 2025-11-19
+    status: PLANNED
+    sprintbacklog Sprint7Backlog {
+        item ProductBacklog.Feature2_Token.SecureStorage {
+            assignee: DevelelopmentTeam.alicia
+            startDate: 2025-11-13
+            dueDate: 2025-11-19
+            status: TODO
+            complexity: MEDIUM|HARD|SPIKE
+        }
+    }
+}
+
+sprint Sprint8 {
+    name: "Sprint 8: Estabilização e Revisão Final"
+    description: "20/11/2025 -- 30/11/2025"
+    startDate: 2025-11-20
+    endDate: 2025-11-30
+    status: PLANNED
+    sprintbacklog Sprint8Backlog {
+        item ProductBacklog.Feature1_Autenticacao.ImplementACL {
+            assignee: DevelelopmentTeam.sofia
+            startDate: 2025-11-20
+            dueDate: 2025-11-30
+            status: TODO
+            complexity: MEDIUM|HARD|SPIKE
+        }
+    }
+}
+
+roadmap ProductRoadmap {
+    name: "Roadmap de Entregas"
+    description: "Marcos principais e entregas conforme o backlog.md"
+    
+    milestone Delivery1 {
+        name: "Entrega Inicial"
+        description: "Sprint 1 + Sprint 2 + Sprint 3"
+        startDate: 2025-10-02
+        dueDate: 2025-11-02
+        status: IN_PROGRESS
+        release V0_1 {
+            name: "Versão Inicial"
+            description: "Memória Contextual, Gráficos e Padronização - Parte 1"
+            version: "0.1.0"
+            dueDate: 2025-11-02
+            status: IN_DEVELOPMENT
+            item: ProductBacklog.Feature3_Memoria
+            item: ProductBacklog.Feature4_Graficos
+            item: ProductBacklog.Feature6_PadraoRespostas
+        }
+    }
+    
+    milestone FinalDelivery {
+        name: "Entrega Final"
+        description: "Sprints 4 a 8 - finalização das features"
+        startDate: 2025-10-23
+        dueDate: 2025-11-30
+        status: PLANNED
+        release V1_0 {
+            name: "Versão Completa"
+            description: "UI, Autenticação, Gerenciamento de Token e Estabilização"
+            version: "1.0.0"
+            dueDate: 2025-11-30
+            status: PLANNED
+            item: ProductBacklog.Feature5_UI
+            item: ProductBacklog.Feature1_Autenticacao
+            item: ProductBacklog.Feature2_Token
+        }
+    }
+}
